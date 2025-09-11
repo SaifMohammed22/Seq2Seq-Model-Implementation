@@ -33,7 +33,7 @@ def main():
     
     # Train model
     print(f"\nStarting training for {EPOCHS} epochs...")
-    train(train_dataloader, encoder, decoder, EPOCHS, lr=LEARNING_RATE, print_every=10)
+    trained_encoder, trained_decoder = train(train_dataloader, encoder, decoder, EPOCHS, lr=LEARNING_RATE, print_every=10)
     
     # Evaluate model on random examples
     print("\nEvaluating model on random examples:")
@@ -47,7 +47,7 @@ def main():
             if sentence == 'quit':
                 break
             
-            output_words = evaluate(encoder, decoder, sentence, input_lang, output_lang)
+            output_words = evaluate(trained_encoder, trained_decoder, sentence, input_lang, output_lang)
             output_sentence = ' '.join(output_words)
             print(f"French: {output_sentence}")
             

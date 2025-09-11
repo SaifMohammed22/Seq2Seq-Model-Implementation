@@ -121,7 +121,8 @@ def evaluate(encoder, decoder, sentence, input_lang, output_lang):
 
         return decoder_words
     
-def evaluateRandom(pairs, encoder, decoder, n=10):
+
+def evaluateRandom(pairs, encoder, decoder, input_lang, output_lang, n=10):
     for i in range(n):
         pair = random.choice(pairs)
         print(">", pair[0])
