@@ -60,12 +60,17 @@ def train_epoch(dataloader, encoder, decoder, encoder_optimizer, decoder_optimiz
         encoder_optimizer.zero_grad()
         decoder_optimizer.zero_grad()
 
-        encoder_output , encoder_hidden = encoder(input_tensor)
-        decoder_output, _ = decoder(encoder_output, encoder_hidden)
+        # Forward pass
+        encoder_outputs, encoder_hidden = encoder(input_tensor)
+        decoder_outputs, _ = decoder(encoder_outputs, encoder_hidden)
 
+        # Calculate loss
+        # decoder_outputs: [batch_size, seq_len, vocab_size]
+        # target_tensor: [batch_size, seq_len]
+        
         loss = criterion(
-            decoder_output.view(-1, decoder_output.size(-1)),
-            target_tensor.view(-1)
+            decoder_outputs.reshape(-1, decoder_outputs.size(-1)),  # [batch*seq, vocab]
+            target_tensor.reshape(-1)  # [batch*seq]
         )
 
         loss.backward()
@@ -76,8 +81,8 @@ def train_epoch(dataloader, encoder, decoder, encoder_optimizer, decoder_optimiz
 
     return total_loss / len(dataloader)
 
+
 def train(train_dataloader, encoder, decoder, epochs, lr=0.001, print_every=100):
-    losses = []
     print_loss_total = 0 
 
     encoder_optimizer = optim.Adam(encoder.parameters(), lr=lr)
@@ -91,7 +96,10 @@ def train(train_dataloader, encoder, decoder, epochs, lr=0.001, print_every=100)
         if epoch % print_every == 0:
             print_loss_avg = print_loss_total / print_every
             print(f"Epoch {epoch:3d}/{epochs} ({epoch/epochs*100:.3f}) | Avg loss: {print_loss_avg}")
-    
+            print_loss_total = 0
+
+    return encoder, decoder
+
 
 def evaluate(encoder, decoder, sentence, input_lang, output_lang):
     with torch.no_grad():

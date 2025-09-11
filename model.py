@@ -40,18 +40,20 @@ class DecoderRNN(nn.Module):
 
     def forward(self, encoder_output, encoder_hidden):
         batch_size = encoder_output.size(0)
+
         decoder_input = torch.empty(batch_size, 1, dtype=torch.long, device=device).fill_(SOS_TOKEN)
         decoder_hidden = encoder_hidden
         decoder_outputs = []
 
         for i in range(MAX_LENGTH):
             decoder_output, decoder_hidden = self.forward_step(decoder_input, decoder_hidden)
-            decoder_outputs.append(decoder_output)
+            decoder_outputs.append(decoder_output.unsqueeze(1))  # [batch_size, 1, output_size]
 
             _, topi = decoder_output.topk(1)
             decoder_input = topi.detach()
         
-        decoder_outputs = torch.cat(decoder_outputs, dim=1)
+        decoder_outputs = torch.cat(decoder_outputs, dim=1) # [batch_size, seq_len, output_size]
+        # Apply log softmax to get log probabilities
         decoder_outputs = F.log_softmax(decoder_outputs, dim=-1)
         return decoder_outputs, decoder_hidden
     
