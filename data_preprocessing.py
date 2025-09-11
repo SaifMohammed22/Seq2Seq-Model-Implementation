@@ -19,7 +19,7 @@ def normalizeString(s):
 
 def readLang(lang1, lang2, reverse=False):
     print("Reading lines....")
-    lines = open(f"seq2seq-model-implementation/data/{lang1}-{lang2}.txt").read().strip().split("\n")
+    lines = open(f"data/{lang1}-{lang2}.txt").read().strip().split("\n")
     
     pairs = []
     for l in lines:
