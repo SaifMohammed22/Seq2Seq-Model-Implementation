@@ -95,7 +95,7 @@ def train(train_dataloader, encoder, decoder, epochs, lr=0.001, print_every=100)
 
         if epoch % print_every == 0:
             print_loss_avg = print_loss_total / print_every
-            print(f"Epoch {epoch:3d}/{epochs} ({epoch/epochs*100:.3f}) | Avg loss: {print_loss_avg}")
+            print(f"Epoch {epoch:3d}/{epochs} ({epoch/epochs*100:5.3f}) | Avg loss: {print_loss_avg}")
             print_loss_total = 0
 
     return encoder, decoder

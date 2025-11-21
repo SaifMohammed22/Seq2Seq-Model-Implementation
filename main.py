@@ -37,26 +37,26 @@ def main():
     
     # Evaluate model on random examples
     print("\nEvaluating model on random examples:")
-    evaluateRandom(pairs, encoder, decoder, n=5)
-    
+    evaluateRandom(pairs, trained_encoder, trained_decoder, input_lang, output_lang, n=5)
+
     # Interactive evaluation
-    print("\nInteractive translation (type 'quit' to exit):")
-    while True:
-        try:
-            sentence = input("English: ").strip().lower()
-            if sentence == 'quit':
-                break
+    # print("\nInteractive translation (type 'quit' to exit):")
+    # while True:
+    #     try:
+    #         sentence = input("English: ").strip().lower()
+    #         if sentence == 'quit':
+    #             break
             
-            output_words = evaluate(trained_encoder, trained_decoder, sentence, input_lang, output_lang)
-            output_sentence = ' '.join(output_words)
-            print(f"French: {output_sentence}")
+    #         output_words = evaluate(trained_encoder, trained_decoder, sentence, input_lang, output_lang)
+    #         output_sentence = ' '.join(output_words)
+    #         print(f"French: {output_sentence}")
             
-        except KeyError as e:
-            print(f"Unknown word: {e}")
-        except KeyboardInterrupt:
-            print("\nExiting...")
-            break
-        print()
+    #     except KeyError as e:
+    #         print(f"Unknown word: {e}")
+    #     except KeyboardInterrupt:
+    #         print("\nExiting...")
+    #         break
+    #     print()
 
 if __name__ == "__main__":
     main()

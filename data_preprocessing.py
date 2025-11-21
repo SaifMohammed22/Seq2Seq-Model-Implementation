@@ -12,8 +12,10 @@ def UnicodeToAscii(s):
 
 def normalizeString(s):
     s = UnicodeToAscii(s.strip().lower())
-    s = re.sub(r"([.!?])", r"\1", s)
-    s = re.sub(r"[^a-zA-Z!?]+", r" ", s)
+    # Add space before punctuation for separation, so that they are treated as separate tokens
+    s = re.sub(r"([.!?])", r" \1", s)
+    # Remove all non-letter characters except for punctuation
+    s = re.sub(r"[^a-zA-Z.!?]+", r" ", s)
     return s.strip()
 
 
@@ -40,6 +42,7 @@ def readLang(lang1, lang2, reverse=False):
 # Clip dataset for simple training
 MAX_LENGTH = 10
 
+# English prefixes for filtering and narrowing dataset for simple training
 eng_prefix = (
     "i am", "i m",
     "he is", "he s",
@@ -72,7 +75,9 @@ if __name__ == "__main__":
         "email@domain.com & phone: 123-456-7890"  # Special chars
     ]
     
-    print(readLang("eng", "fra"))
+    _, _, pairs = readLang("eng", "fra")
+    print(f"Total sentence pairs read: {len(pairs)}")
+    print(f"First 5 pairs: {pairs[:5]}")
     print("Original -> Unicode to ASCII -> Normalized")
     print("-" * 60)
     

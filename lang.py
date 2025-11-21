@@ -2,8 +2,8 @@ SOS_TOKEN = 0
 EOS_TOKEN = 1 
 
 class Lang():
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, lang_name):
+        self.name = lang_name
         self.word2idx = {"SOS": 0, "EOS": 1}
         self.word2count = {}
         self.idx2word = {0: "SOS", 1: "EOS"}
@@ -24,12 +24,11 @@ class Lang():
             self.word2count[word] += 1
 
 
-#
-
 if __name__ == "__main__":
-    lang = Lang()
-    sentence = "Hello world"
+    lang = Lang("English")
+    sentence = "Hello Hello world"
     lang.addSentence(sentence)
+    print(lang.name)
     print(lang.word2idx)
     print(lang.word2count)
     print(lang.idx2word)
