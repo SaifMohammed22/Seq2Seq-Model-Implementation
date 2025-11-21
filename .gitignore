@@ -1,0 +1,16 @@
+# Python cache / compiled files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data (if you don't want to track raw data)
+data/*.txt
+data/names/*.txt
+
+# OS/editor junk
+.DS_Store
+*.swp
