@@ -15,10 +15,20 @@ def prepareData(lang1, lang2, reverse=False):
     print("Counted words.")
     print(input_lang.name, input_lang.n_words)
     print(output_lang.name, output_lang.n_words)
-    return input_lang, output_lang, pairs
+
+    # Training pairs and Test pairs
+    n_train = int(0.8 * len(pairs))
+    train_pairs = pairs[:n_train]
+    test_pairs = pairs[n_train:]
+    
+    return input_lang, output_lang, train_pairs, test_pairs
     
 
 if __name__ == "__main__":
-    input_lang, output_lang, pairs = prepareData('eng', 'fra', True)
-    random_pairs = random.choice(pairs)
-    print(random_pairs)
+    input_lang, output_lang, train_pairs, test_pairs = prepareData('eng', 'fra', True)
+    random_train_pair = random.choice(train_pairs)
+    random_test_pair = random.choice(test_pairs)
+
+    print(len(train_pairs), len(test_pairs))
+    print(random_train_pair)
+    print(random_test_pair)

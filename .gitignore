@@ -8,7 +8,8 @@ __pycache__/
 .ipynb_checkpoints/
 
 # Data (if you don't want to track raw data)
-data/*.txt
+data/eng-ara.txt
+data/_about.txt
 data/names/*.txt
 
 # OS/editor junk

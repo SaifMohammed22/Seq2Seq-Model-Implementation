@@ -1,7 +1,9 @@
 from prep_data import prepareData
 from model import EncoderRNN, DecoderRNN, device
-from train import get_dataloader, train, evaluate, evaluateRandom
-from lang import SOS_TOKEN, EOS_TOKEN
+from train import get_dataloader, train, evaluateRandom, evaluate_epoch
+import torch
+import torch.nn as nn
+import os
 
 
 def main():
@@ -13,14 +15,10 @@ def main():
     BATCH_SIZE = 32
     EPOCHS = 100
     LEARNING_RATE = 0.001
-    
-    # Prepare data
-    print("Preparing data...")
-    input_lang, output_lang, pairs = prepareData('eng', 'fra', True)
-    
+        
     # Get dataloader
     print("Creating dataloader...")
-    input_lang, output_lang, train_dataloader = get_dataloader(BATCH_SIZE)
+    input_lang, output_lang, train_dataloader, test_dataloader = get_dataloader(BATCH_SIZE)
     
     # Initialize models
     print("Initializing models...")
@@ -29,34 +27,22 @@ def main():
     
     print(f"Encoder vocab size: {input_lang.n_words}")
     print(f"Decoder vocab size: {output_lang.n_words}")
-    print(f"Number of training pairs: {len(pairs)}")
+    print(f"Training pairs: {len(train_dataloader.dataset)}")
+    print(f"Test pairs: {len(test_dataloader.dataset)}")
     
     # Train model
     print(f"\nStarting training for {EPOCHS} epochs...")
-    trained_encoder, trained_decoder = train(train_dataloader, encoder, decoder, EPOCHS, lr=LEARNING_RATE, print_every=10)
+    trained_encoder, trained_decoder = train(train_dataloader, test_dataloader, encoder, decoder, EPOCHS, lr=LEARNING_RATE, print_every=10)
+     
+    # Save trained models
+    os.makedirs("models", exist_ok=True)
+    torch.save(trained_encoder.state_dict(), "models/trained_encoder.pth")
+    torch.save(trained_decoder.state_dict(), "models/trained_decoder.pth")
     
     # Evaluate model on random examples
     print("\nEvaluating model on random examples:")
-    evaluateRandom(pairs, trained_encoder, trained_decoder, input_lang, output_lang, n=5)
+    evaluateRandom(test_dataloader.dataset, trained_encoder, trained_decoder, input_lang, output_lang, n=5)
 
-    # Interactive evaluation
-    # print("\nInteractive translation (type 'quit' to exit):")
-    # while True:
-    #     try:
-    #         sentence = input("English: ").strip().lower()
-    #         if sentence == 'quit':
-    #             break
-            
-    #         output_words = evaluate(trained_encoder, trained_decoder, sentence, input_lang, output_lang)
-    #         output_sentence = ' '.join(output_words)
-    #         print(f"French: {output_sentence}")
-            
-    #     except KeyError as e:
-    #         print(f"Unknown word: {e}")
-    #     except KeyboardInterrupt:
-    #         print("\nExiting...")
-    #         break
-    #     print()
 
 if __name__ == "__main__":
     main()
