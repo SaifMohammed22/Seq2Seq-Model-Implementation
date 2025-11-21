@@ -97,6 +97,7 @@ def train_epoch(dataloader, encoder, decoder, encoder_optimizer, decoder_optimiz
 
 def train(train_dataloader, test_dataloader, encoder, decoder, epochs, lr=0.001, print_every=100):
     print_loss_total = 0 
+    print_test_loss = 0
 
     encoder_optimizer = optim.Adam(encoder.parameters(), lr=lr)
     decoder_optimizer = optim.Adam(decoder.parameters(), lr=lr)
@@ -106,12 +107,15 @@ def train(train_dataloader, test_dataloader, encoder, decoder, epochs, lr=0.001,
         loss = train_epoch(train_dataloader, encoder, decoder, encoder_optimizer, decoder_optimizer, criterion)
         test_loss = evaluate_epoch(test_dataloader, encoder, decoder, criterion)
         print_loss_total += loss
+        print_test_loss += test_loss
 
         if epoch % print_every == 0:
             print_loss_avg = print_loss_total / print_every
+            print_test_avg = print_test_loss / print_every
             
-            print(f"Epoch {epoch:3d}/{epochs} ({epoch/epochs*100:5.3f}) | Avg Training loss: {print_loss_avg} | Test loss: {test_loss:.4f}")
+            print(f"Epoch {epoch:3d}/{epochs} ({epoch/epochs*100:5.3f}) | Avg Training loss: {print_loss_avg} | Avg Test loss: {print_test_avg:.4f}")
             print_loss_total = 0
+            print_test_loss = 0
 
     return encoder, decoder
 
@@ -138,30 +142,31 @@ def evaluate_epoch(dataloader, encoder, decoder, criterion):
     return total_loss / len(dataloader)
 
 
-def evaluate(encoder, decoder, sentence, input_lang, output_lang):
+def evaluate(encoder, decoder, sentence, input_lang, output_lang, max_length=MAX_LENGTH):
+    """Greedy decode a single input sentence string"""
     with torch.no_grad():
-        input_tensor = tensorFromSentence(input_lang, sentence)
-
+        # Encode
+        input_tensor = tensorFromSentence(input_lang, sentence)  # [1, seq_len]
         encoder_outputs, encoder_hidden = encoder(input_tensor)
-        decoder_outputs, _ = decoder(encoder_outputs, encoder_hidden)
-
-        loss = evaluate_epoch(None, encoder, decoder, nn.NLLLoss())
-
-        _, topi = decoder_outputs.topk(1)
-        decoder_id = topi.squeeze()
-
-        decoder_words = []
-
-        for idx in decoder_id:
-            if idx.item() == EOS_TOKEN:
-                decoder_words.append("<EOS>")
+        
+        # Decode
+        decoder_outputs, _ = decoder(encoder_outputs, encoder_hidden)  # [1, seq_len, vocab]
+        
+        # Get predictions
+        _, topi = decoder_outputs.topk(1, dim=-1)  # [1, seq_len, 1]
+        decoder_ids = topi.squeeze(0).squeeze(-1)  # [seq_len]
+        decoded_words = []
+        for idx in decoder_ids:
+            idx = idx.item()
+            if idx == EOS_TOKEN:
                 break
-            decoder_words.append(output_lang.idx2word[idx.item()])
+            decoded_words.append(output_lang.idx2word.get(idx, "<UNK>"))
+        
+        return decoded_words
 
-        return decoder_words
-    
 
 def evaluateRandom(pairs, encoder, decoder, input_lang, output_lang, n=10):
+    """Print n random translation examples from pairs."""
     for i in range(n):
         pair = random.choice(pairs)
         print(">", pair[0])

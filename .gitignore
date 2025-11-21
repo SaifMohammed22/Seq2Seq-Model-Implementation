@@ -6,6 +6,7 @@ __pycache__/
 
 # Jupyter
 .ipynb_checkpoints/
+seq2seq.ipynb
 
 # Data (if you don't want to track raw data)
 data/eng-ara.txt
