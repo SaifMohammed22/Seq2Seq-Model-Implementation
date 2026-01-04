@@ -2,7 +2,7 @@
 __pycache__/
 *.py[codz]
 *$py.class
-.vscode/
+/.vscode/
 
 # C extensions
 *.so
@@ -209,10 +209,7 @@ cython_debug/
 .pypirc
 
 # Unnecessary data
-data/names/*
-data/_about.txt
-data/eng-ara.txt
-
+dataset/
 
 # Marimo
 marimo/_static/
