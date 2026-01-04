@@ -1,6 +1,6 @@
-from prep_data import prepareData
-from model import EncoderRNN, DecoderRNN, device
-from train import get_dataloader, train, evaluateRandom, evaluate_epoch
+from src.data.prep_data import prepareData
+from src.models.model import AttnDecoderRNN, EncoderRNN, device
+from scripts.train import get_dataloader, train, evaluateRandom, evaluate_epoch
 import torch
 import torch.nn as nn
 import os
@@ -10,11 +10,11 @@ def main():
     """Main function to run training and evaluation"""
     print(f"Using device: {device}")
     
-    # Hyperparameters
     HIDDEN_SIZE = 256
     BATCH_SIZE = 32
     EPOCHS = 100
     LEARNING_RATE = 0.001
+    DROPOUT = 0.3
         
     # Get dataloader
     print("Creating dataloader...")
@@ -25,19 +25,19 @@ def main():
     
     # Initialize models
     print("Initializing models...")
-    encoder = EncoderRNN(input_lang.n_words, HIDDEN_SIZE).to(device)
-    decoder = DecoderRNN(HIDDEN_SIZE, output_lang.n_words).to(device)
+    encoder = EncoderRNN(input_lang.n_words, HIDDEN_SIZE, dropout=DROPOUT).to(device)
+    decoder = AttnDecoderRNN(HIDDEN_SIZE, output_lang.n_words, dropout=DROPOUT).to(device)
     
     print(f"Encoder vocab size: {input_lang.n_words}")
     print(f"Decoder vocab size: {output_lang.n_words}")
-    print(f"Training pairs: {len(train_pairs)}")
-    print(f"Test pairs: {len(test_pairs)}")
+    print(f"Training pairs: {len(train_dataloader.dataset)}")
+    print(f"Test pairs: {len(test_dataloader.dataset)}")
     
     # Train model
     print(f"\nStarting training for {EPOCHS} epochs...")
     trained_encoder, trained_decoder = train(
         train_dataloader, test_dataloader, encoder, decoder, 
-        EPOCHS, lr=LEARNING_RATE, print_every=10
+        EPOCHS, learning_rate=LEARNING_RATE, print_every=10, plot_every=10
     )
      
     # Save trained models
@@ -47,13 +47,13 @@ def main():
     print("\n✅ Models saved to models/")
     
     # Final test loss
-    criterion = nn.NLLLoss()
+    criterion = nn.NLLLoss(ignore_index=0)
     final_test_loss = evaluate_epoch(test_dataloader, trained_encoder, trained_decoder, criterion)
     print(f"\n📊 Final Test Loss: {final_test_loss:.4f}")
     
     # Evaluate model on random examples
     print("\n🔍 Sample translations from test set:")
-    evaluateRandom(test_pairs, trained_encoder, trained_decoder, input_lang, output_lang, n=5)
+    evaluateRandom(test_pairs, trained_encoder, trained_decoder, input_lang, output_lang, n=10)
 
 
 if __name__ == "__main__":
